@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yatzy vs Bot – Play Free Yatzy Dice Game Online</title>
+
+<meta name="description" content="Play Yatzy against a smart bot for free. 13 categories, 3 rolls per turn, fixed lower-section points. No download, no signup — just click and play.">
+<meta name="keywords" content="yatzy, yatzy game, free yatzy, dice game, yatzy online, play yatzy, yatzy vs bot">
+<meta name="author" content="Your Name">
+<meta name="robots" content="index, follow">
+
+<!-- Open Graph (for when people share the link) -->
+<meta property="og:title" content="Yatzy vs Bot – Free Online Dice Game">
+<meta property="og:description" content="Play Yatzy against a smart bot. Free, no signup.">
+<meta property="og:type" content="website">
+
+<!-- Favicon placeholder (optional, skip if you don't have one) -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --table-green: #1B4332;
+    --table-green-dark: #143328;
+    --parchment: #F5EFE0;
+    --parchment-line: #E2D8BF;
+    --ink: #1B1B1B;
+    --ink-soft: #6B6558;
+    --yellow: #F2B705;
+    --orange: #E8871E;
+    --orange-dark: #B95E0A;
+    --white: #FFFFFF;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(circle at 50% 0%, var(--table-green) 0%, var(--table-green-dark) 100%);
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .game { width: 100%; max-width: 960px; }
+
+  h1 {
+    font-family: 'Zilla Slab', serif;
+    font-weight: 700;
+    font-size: 2.6rem;
+    color: var(--parchment);
+    text-align: center;
+    margin: 0 0 4px;
+  }
+
+  .subtitle { text-align: center; color: #C9D8CE; margin-bottom: 6px; font-size: 0.95rem; }
+
+  .best-score {
+    text-align: center;
+    color: var(--yellow);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  .name-field { text-align: center; margin-bottom: 10px; }
+  .name-field input {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    padding: 6px 16px;
+    color: var(--parchment);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    text-align: center;
+    width: 200px;
+    max-width: 80%;
+  }
+  .name-field input::placeholder { color: rgba(245,239,224,0.5); }
+  .name-field input:focus-visible { outline: 2px solid var(--yellow); outline-offset: 1px; }
+
+  .turn-badge {
+    display: block;
+    width: fit-content;
+    margin: 0 auto 28px;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-family: 'Zilla Slab', serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    background: var(--yellow);
+    color: var(--ink);
+    transition: background 0.2s ease;
+  }
+  .turn-badge.bot-turn { background: var(--orange); color: var(--white); }
+
+  .board {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  @media (min-width: 780px) {
+    .board { grid-template-columns: 260px 1fr; align-items: start; }
+  }
+
+  /* ---------- DICE TRAY ---------- */
+  .tray {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 24px 20px;
+    text-align: center;
+  }
+
+  /* Bot difficulty toggle */
+  .bot-mode-label { display: block; color: #C9D8CE; font-size: 0.72rem; margin-bottom: 6px; letter-spacing: 0.2px; }
+  .mode-buttons { display: flex; gap: 6px; margin-bottom: 20px; }
+  .mode-btn {
+    flex: 1;
+    padding: 7px 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--parchment);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .mode-btn.active { background: var(--yellow); color: var(--ink); border-color: var(--yellow); }
+  .mode-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .mode-lock-hint { color: #C9D8CE; font-size: 0.68rem; margin: -14px 0 18px; opacity: 0.75; }
+
+  .dice-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+
+  .die {
+    width: 56px; height: 56px;
+    background: var(--parchment);
+    border: none; border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.25);
+    padding: 0;
+    transition: transform 0.1s ease;
+  }
+  .die:hover:not(:disabled) { transform: translateY(-2px); }
+  .die:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+
+  .die.held {
+    background: #FFF4DC;
+    box-shadow: 0 0 0 3px var(--orange), 0 3px 0 rgba(0,0,0,0.25);
+  }
+
+  /* Idle die — shown before the first roll of a turn, instead of a
+     misleading "all ones" face */
+  .die.idle {
+    background: rgba(255,255,255,0.08);
+    box-shadow: none;
+    cursor: default;
+  }
+  .die.idle svg rect { animation: idlePulse 1.8s ease-in-out infinite; }
+  @keyframes idlePulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.7; } }
+
+  .die svg { width: 100%; height: 100%; }
+  .pip { fill: var(--ink); }
+  .die.held .pip { fill: var(--orange-dark); }
+
+  .hint { color: #C9D8CE; font-size: 0.8rem; margin-bottom: 18px; }
+
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 3px 0 var(--orange-dark); }
+    50% { box-shadow: 0 3px 0 var(--orange-dark), 0 0 16px 3px rgba(242,183,5,0.55); }
+  }
+  .roll-btn {
+    width: 100%; padding: 14px;
+    font-family: 'Zilla Slab', serif;
+    font-size: 1.15rem; font-weight: 700;
+    background: var(--yellow);
+    color: var(--ink);
+    border: none; border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 3px 0 var(--orange-dark);
+  }
+  .roll-btn:not(:disabled) { animation: pulseGlow 1.8s ease-in-out infinite; }
+  .roll-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: none; animation: none; }
+  .roll-btn:disabled { background: #8A8A8A; box-shadow: 0 3px 0 #666; cursor: not-allowed; color: #DDD; animation: none; }
+
+  .rolls-left { margin-top: 10px; color: var(--parchment); font-size: 0.9rem; }
+
+  .new-game {
+    margin-top: 14px;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.3);
+    color: var(--parchment);
+    padding: 8px 14px; border-radius: 6px;
+    cursor: pointer; font-size: 0.85rem; width: 100%;
+  }
+  .new-game:hover { background: rgba(255,255,255,0.08); }
+
+  /* ---------- SCORECARD: two side-by-side sections, prettied up ---------- */
+  .scorecard {
+    background: var(--parchment);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.28);
+  }
+
+  .sections-grid { display: grid; grid-template-columns: 1fr; }
+  @media (min-width: 600px) {
+    .sections-grid { grid-template-columns: 1fr 1fr; }
+    .sections-grid .section-panel:nth-child(2) { border-left: 1px solid var(--parchment-line); }
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead th {
+    font-family: 'Zilla Slab', serif;
+    text-align: left;
+    padding: 12px 14px;
+    background: var(--ink);
+    color: var(--parchment);
+    font-size: 0.85rem;
+  }
+  thead th.you-col, thead th.bot-col { text-align: center; width: 64px; }
+
+  /* A small colored dot ties each section header to its accent color,
+     rather than decorating every heading the same generic way */
+  .section-panel:first-child thead th:first-child::before {
+    content: ''; display: inline-block; width: 8px; height: 8px;
+    border-radius: 50%; background: var(--yellow); margin-right: 8px;
+  }
+  .section-panel:last-child thead th:first-child::before {
+    content: ''; display: inline-block; width: 8px; height: 8px;
+    border-radius: 50%; background: var(--orange); margin-right: 8px;
+  }
+  .section-panel:first-child thead th { border-bottom: 3px solid var(--yellow); }
+  .section-panel:last-child thead th { border-bottom: 3px solid var(--orange); }
+
+  tbody tr { border-bottom: 1px solid var(--parchment-line); }
+  tbody tr:nth-child(odd) { background: rgba(0,0,0,0.025); }
+  tbody tr:hover { background: rgba(242,183,5,0.1); }
+
+  td.cat-name { padding: 9px 14px; font-size: 0.88rem; font-weight: 600; }
+  td.cat-name .desc { display: block; color: var(--ink-soft); font-size: 0.7rem; font-weight: 400; font-style: italic; margin-top: 1px; }
+
+  td.cat-score {
+    text-align: center;
+    padding: 8px 6px;
+    font-family: 'Zilla Slab', serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  button.score-choice {
+    font-family: 'Zilla Slab', serif;
+    font-weight: 700; font-size: 0.95rem;
+    background: none;
+    border: 1.5px dashed var(--orange-dark);
+    color: var(--orange-dark);
+    padding: 2px 8px; border-radius: 6px;
+    cursor: pointer;
+  }
+  button.score-choice:hover { background: var(--yellow); color: var(--ink); border-style: solid; }
+
+  .empty-cell { color: #C9C2AE; }
+  .locked-score {
+    display: inline-block;
+    background: rgba(0,0,0,0.045);
+    padding: 2px 11px;
+    border-radius: 12px;
+  }
+
+  @keyframes scorePop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.4); color: var(--orange-dark); }
+    100% { transform: scale(1); }
+  }
+  .locked-score.pop { animation: scorePop 0.5s ease; }
+
+  .bonus-track {
+    width: 46px; height: 7px;
+    background: rgba(0,0,0,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 0 auto 3px;
+  }
+  .bonus-fill { height: 100%; background: linear-gradient(90deg, var(--yellow), var(--orange)); transition: width 0.3s ease; }
+  .bonus-label { font-size: 0.62rem; color: var(--ink-soft); font-family: 'Inter'; font-weight: 600; }
+  .bonus-achieved { color: var(--orange-dark); font-weight: 700; }
+
+  .totals-table tfoot td {
+    padding: 14px 16px;
+    font-family: 'Zilla Slab', serif;
+    font-weight: 700; font-size: 1.15rem;
+    background: linear-gradient(rgba(0,0,0,0.05), rgba(0,0,0,0.05));
+    border-top: 3px solid var(--yellow);
+  }
+  .totals-table tfoot td.you-col, .totals-table tfoot td.bot-col { text-align: center; width: 64px; }
+
+  .message { text-align: center; color: var(--parchment); margin-top: 18px; min-height: 22px; font-size: 0.95rem; }
+
+  /* ---------- WIN OVERLAY ---------- */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 50;
+    padding: 20px;
+  }
+  .overlay[hidden] { display: none; }
+
+  .overlay-card {
+    position: relative;
+    background: var(--parchment);
+    border-radius: 16px;
+    padding: 40px 36px;
+    text-align: center;
+    max-width: 380px;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  }
+
+  .overlay-card h2 { font-family: 'Zilla Slab', serif; font-size: 2rem; margin: 0 0 8px; color: var(--ink); position: relative; z-index: 2; }
+  .overlay-card p { margin: 0 0 6px; color: var(--ink-soft); position: relative; z-index: 2; }
+  .overlay-card .best-line { color: var(--orange-dark); font-weight: 700; margin-bottom: 20px; }
+
+  #playAgainBtn {
+    position: relative; z-index: 2;
+    font-family: 'Zilla Slab', serif;
+    font-weight: 700; font-size: 1.05rem;
+    background: var(--yellow);
+    border: none; border-radius: 8px;
+    padding: 12px 28px;
+    cursor: pointer;
+    box-shadow: 0 3px 0 var(--orange-dark);
+  }
+  #playAgainBtn:active { transform: translateY(2px); box-shadow: none; }
+
+  .confetti-piece {
+    position: absolute; top: -12px;
+    width: 8px; height: 14px;
+    opacity: 0.9; border-radius: 2px;
+    animation: confettiFall linear forwards;
+    z-index: 1;
+  }
+  @keyframes confettiFall { to { transform: translateY(340px) rotate(360deg); opacity: 0; } }
+</style>
+</head>
+<body>
+
+<div class="game">
+  <h1 id="gameTitle">Yatzy vs Bot</h1>
+  <p class="subtitle">13 categories · 3 rolls per turn · fixed lower-section points</p>
+  <div class="name-field">
+    <input type="text" id="playerNameInput" maxlength="16" placeholder="Your name (optional)" autocomplete="off">
+  </div>
+  <p class="best-score" id="bestScoreDisplay">Your best: 0</p>
+  <span class="turn-badge" id="turnBadge">Your turn</span>
+
+  <div class="board">
+
+    <!-- ================= DICE TRAY ================= -->
+    <div class="tray">
+      <span class="bot-mode-label">Bot difficulty</span>
+      <div class="mode-buttons">
+        <button class="mode-btn active" data-mode="optimal">Optimal</button>
+        <button class="mode-btn" data-mode="easy">Easy</button>
+      </div>
+      <p class="mode-lock-hint" id="modeLockHint" hidden>Locked for this game</p>
+
+      <div class="dice-row" id="diceRow"></div>
+      <p class="hint">Click a die to hold it before rerolling</p>
+      <button class="roll-btn" id="rollBtn">Roll dice</button>
+      <p class="rolls-left" id="rollsLeft">3 rolls left</p>
+      <button class="new-game" id="newGameBtn">Start new game</button>
+    </div>
+
+    <!-- ================= SCORECARD: two columns side by side ================= -->
+    <div class="scorecard">
+      <div class="sections-grid">
+        <div class="section-panel">
+          <table>
+            <thead><tr><th>Upper Section</th><th class="you-col">You</th><th class="bot-col">Bot</th></tr></thead>
+            <tbody id="upperBody"></tbody>
+          </table>
+        </div>
+        <div class="section-panel">
+          <table>
+            <thead><tr><th>Lower Section</th><th class="you-col">You</th><th class="bot-col">Bot</th></tr></thead>
+            <tbody id="lowerBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <table class="totals-table">
+        <tfoot><tr><td>Total</td><td class="you-col" id="youTotal">0</td><td class="bot-col" id="botTotal">0</td></tr></tfoot>
+      </table>
+    </div>
+
+  </div>
+
+  <p class="message" id="message"></p>
+</div>
+
+<!-- ================= WIN / GAME-OVER OVERLAY ================= -->
+<div class="overlay" id="winOverlay" hidden>
+  <div class="overlay-card">
+    <div id="confettiLayer"></div>
+    <h2 id="overlayTitle">Well played!</h2>
+    <p id="overlaySubtitle">210 - 178</p>
+    <p class="best-line" id="overlayBestLine" hidden>New personal best!</p>
+    <button id="playAgainBtn">Play again</button>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   GAME STATE
+   ================================================================ */
+const state = {
+  dice: [1, 1, 1, 1, 1],
+  held: [false, false, false, false, false],
+  rollsLeft: 3,
+  hasRolledThisTurn: false,
+  currentPlayer: 'you',
+  scores: { you: {}, bot: {} },
+  lastFilled: null,
+  botMode: 'optimal',   // 'optimal' or 'easy' — set by the difficulty toggle
+  playerName: '',       // optional, set via the name field
+  gameStarted: false,   // true from the first roll of the game onward — locks bot difficulty
+};
+
+const rollOne = () => Math.floor(Math.random() * 6) + 1;
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+/* ================================================================
+   SAFE STORAGE
+   Falls back to an in-memory store if localStorage throws — which it
+   does inside sandboxed contexts like a Claude Artifact preview
+   (opaque-origin iframes block it entirely). Without this wrapper the
+   very first call would throw at page load and silently kill the
+   whole script before the game ever renders.
+   ================================================================ */
+const memoryStore = {};
+const storage = {
+  get(key, fallback) {
+    try {
+      const v = localStorage.getItem(key);
+      return v === null ? fallback : v;
+    } catch (e) {
+      return Object.prototype.hasOwnProperty.call(memoryStore, key) ? memoryStore[key] : fallback;
+    }
+  },
+  set(key, value) {
+    try { localStorage.setItem(key, value); }
+    catch (e) { memoryStore[key] = value; }
+  }
+};
+
+/* ================================================================
+   NAME HELPERS
+   ================================================================ */
+function displayName() {
+  return state.playerName.trim() || 'You';
+}
+function possessive() {
+  const n = state.playerName.trim();
+  return n ? `${n}'s` : 'Your';
+}
+function possessiveLower() {
+  const n = state.playerName.trim();
+  return n ? `${n}'s` : 'your';
+}
+function refreshNameDisplays() {
+  const name = state.playerName.trim();
+  document.getElementById('gameTitle').textContent = name ? `${name} vs Bot` : 'Yatzy vs Bot';
+  updateBestDisplay();
+  if (state.currentPlayer === 'you') {
+    document.getElementById('turnBadge').textContent = `${possessive()} turn`;
+  }
+}
+
+/* ================================================================
+   CATEGORY DEFINITIONS (13 categories)
+   ================================================================ */
+function countFaces(dice) {
+  const counts = {1:0,2:0,3:0,4:0,5:0,6:0};
+  dice.forEach(d => counts[d]++);
+  return counts;
+}
+const sum = arr => arr.reduce((a,b) => a+b, 0);
+
+function hasRun(dice, run) {
+  const set = new Set(dice);
+  return run.every(v => set.has(v));
+}
+
+const CATEGORIES = [
+  { key:'ones',   label:'Ones',   desc:'Sum of all 1s', section:'upper', score: d => countFaces(d)[1]*1 },
+  { key:'twos',   label:'Twos',   desc:'Sum of all 2s', section:'upper', score: d => countFaces(d)[2]*2 },
+  { key:'threes', label:'Threes', desc:'Sum of all 3s', section:'upper', score: d => countFaces(d)[3]*3 },
+  { key:'fours',  label:'Fours',  desc:'Sum of all 4s', section:'upper', score: d => countFaces(d)[4]*4 },
+  { key:'fives',  label:'Fives',  desc:'Sum of all 5s', section:'upper', score: d => countFaces(d)[5]*5 },
+  { key:'sixes',  label:'Sixes',  desc:'Sum of all 6s', section:'upper', score: d => countFaces(d)[6]*6 },
+
+  { key:'threeKind', label:'Three of a Kind', desc:'3+ matching \u2192 sum of all 5', section:'lower',
+    score: d => Object.values(countFaces(d)).some(c => c >= 3) ? sum(d) : 0 },
+
+  { key:'fourKind', label:'Four of a Kind', desc:'4+ matching \u2192 sum of all 5', section:'lower',
+    score: d => Object.values(countFaces(d)).some(c => c >= 4) ? sum(d) : 0 },
+
+  { key:'fullHouse', label:'Full House', desc:'3-of-a-kind + a pair \u2192 fixed 25', section:'lower',
+    score: d => {
+      const values = Object.values(countFaces(d));
+      return (values.includes(3) && values.includes(2)) ? 25 : 0;
+    }},
+
+  { key:'smallStraight', label:'Small Straight', desc:'1234, 2345 or 3456 \u2192 fixed 30', section:'lower',
+    score: d => (hasRun(d,[1,2,3,4]) || hasRun(d,[2,3,4,5]) || hasRun(d,[3,4,5,6])) ? 30 : 0 },
+
+  { key:'largeStraight', label:'Large Straight', desc:'12345 or 23456 \u2192 fixed 40', section:'lower',
+    score: d => {
+      const set = [...new Set(d)].sort().join('');
+      return (set === '12345' || set === '23456') ? 40 : 0;
+    }},
+
+  { key:'chance', label:'Chance', desc:'Sum of all dice', section:'lower', score: d => sum(d) },
+
+  { key:'yatzy', label:'Yatzy', desc:'All five match \u2192 fixed 50', section:'lower',
+    score: d => Object.values(countFaces(d)).includes(5) ? 50 : 0 },
+];
+
+const UPPER_BONUS_THRESHOLD = 63;
+const UPPER_BONUS_POINTS = 50;
+
+/* ================================================================
+   DICE RENDERING
+   ================================================================ */
+const PIP_LAYOUTS = {
+  1: [[50,50]],
+  2: [[28,28],[72,72]],
+  3: [[28,28],[50,50],[72,72]],
+  4: [[28,28],[72,28],[28,72],[72,72]],
+  5: [[28,28],[72,28],[50,50],[28,72],[72,72]],
+  6: [[28,24],[72,24],[28,50],[72,50],[28,76],[72,76]],
+};
+
+function dieFaceSVG(value) {
+  const pips = PIP_LAYOUTS[value].map(([cx,cy]) => `<circle class="pip" cx="${cx}" cy="${cy}" r="8"></circle>`).join('');
+  return `<svg viewBox="0 0 100 100">${pips}</svg>`;
+}
+
+// A blank, dashed-outline face shown before the first roll of a turn —
+// so an untouched turn doesn't misleadingly look like "five ones".
+function idleDieSVG() {
+  return `<svg viewBox="0 0 100 100"><rect x="12" y="12" width="76" height="76" rx="14" fill="none" stroke="currentColor" stroke-width="5" stroke-dasharray="9 7"/></svg>`;
+}
+
+function renderDiceFaces(values, holdMask, interactive) {
+  const row = document.getElementById('diceRow');
+  row.innerHTML = values.map((value,i) => `
+    <button class="die ${holdMask[i] ? 'held' : ''}" data-index="${i}" aria-label="Die showing ${value}${holdMask[i] ? ', held' : ''}">
+      ${dieFaceSVG(value)}
+    </button>`).join('');
+
+  if (interactive) {
+    row.querySelectorAll('.die').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (state.currentPlayer !== 'you' || !state.hasRolledThisTurn) return;
+        const i = Number(btn.dataset.index);
+        state.held[i] = !state.held[i];
+        renderDiceFaces(state.dice, state.held, true);
+      });
+    });
+  }
+}
+
+// Shown at the start of every turn, before anyone has rolled yet.
+function renderIdleDice() {
+  const row = document.getElementById('diceRow');
+  row.innerHTML = Array.from({length: 5}, () => `
+    <button class="die idle" disabled style="color: var(--ink-soft)">${idleDieSVG()}</button>
+  `).join('');
+}
+
+function renderDice() {
+  if (!state.hasRolledThisTurn) {
+    renderIdleDice();
+  } else {
+    renderDiceFaces(state.dice, state.held, state.currentPlayer === 'you');
+  }
+}
+
+/* ================================================================
+   ROLLING WITH ANIMATION
+   ================================================================ */
+function setModeLocked(locked) {
+  document.querySelectorAll('.mode-btn').forEach(b => { b.disabled = locked; });
+  document.getElementById('modeLockHint').hidden = !locked;
+}
+
+function performRoll(holdMask) {
+  if (!state.gameStarted) {
+    state.gameStarted = true;
+    setModeLocked(true);
+  }
+  return new Promise(resolve => {
+    const baseDice = state.hasRolledThisTurn ? state.dice : [1,1,1,1,1];
+    const finalDice = baseDice.map((v,i) => holdMask[i] ? v : rollOne());
+    let ticks = 0;
+    const maxTicks = 8;
+    const timer = setInterval(() => {
+      ticks++;
+      if (ticks < maxTicks) {
+        const flicker = baseDice.map((v,i) => holdMask[i] ? v : rollOne());
+        renderDiceFaces(flicker, holdMask, false);
+      } else {
+        clearInterval(timer);
+        state.dice = finalDice;
+        state.held = holdMask.slice();
+        state.hasRolledThisTurn = true;
+        renderDiceFaces(state.dice, state.held, state.currentPlayer === 'you');
+        resolve();
+      }
+    }, 70);
+  });
+}
+
+/* ================================================================
+   BOT DECISION LOGIC
+   Two modes:
+   - "optimal": simulates many outcomes per hold pattern (unchanged
+     from before) and always picks the statistically best category.
+   - "easy": a quick greedy heuristic that chases whatever category
+     looks best RIGHT NOW (no lookahead), and occasionally makes a
+     human-like mistake — a noisy hold, or picking a weaker category.
+   ================================================================ */
+const ALL_HOLD_SUBSETS = Array.from({length: 32}, (_, mask) =>
+  [0,1,2,3,4].map(i => Boolean(mask & (1 << i)))
+);
+
+function bestCategoryScore(dice, usedKeys) {
+  const candidates = CATEGORIES.filter(c => !usedKeys.has(c.key));
+  const scored = candidates.map(c => ({ key: c.key, score: c.score(dice) }));
+  const maxScore = Math.max(...scored.map(s => s.score));
+  const tied = scored.filter(s => s.score === maxScore);
+  if (tied.length === 1) return tied[0];
+
+  const sacrificeOrder = ['ones','twos','threes','fours','fives','sixes',
+    'fullHouse','threeKind','smallStraight','fourKind','largeStraight','chance','yatzy'];
+  for (const key of sacrificeOrder) {
+    const match = tied.find(s => s.key === key);
+    if (match) return match;
+  }
+  return tied[0];
+}
+
+function bestHoldForCategory(dice, key) {
+  const counts = countFaces(dice);
+  const faceMap = { ones:1, twos:2, threes:3, fours:4, fives:5, sixes:6 };
+
+  if (faceMap[key]) {
+    const face = faceMap[key];
+    return dice.map(d => d === face);
+  }
+  if (key === 'threeKind' || key === 'fourKind' || key === 'yatzy') {
+    let bestFace = 1, bestCount = 0;
+    for (let f = 1; f <= 6; f++) if (counts[f] > bestCount) { bestCount = counts[f]; bestFace = f; }
+    return dice.map(d => d === bestFace);
+  }
+  if (key === 'fullHouse') return dice.map(d => counts[d] >= 2);
+  if (key === 'smallStraight' || key === 'largeStraight') {
+    const seen = new Set();
+    return dice.map(d => { if (!seen.has(d)) { seen.add(d); return true; } return false; });
+  }
+  return dice.map(d => d >= 5);
+}
+
+function evaluateHold(dice, holdMask, usedKeys, rerollsAfterThis, trials) {
+  let total = 0;
+  for (let t = 0; t < trials; t++) {
+    let simDice = dice.map((v,i) => holdMask[i] ? v : rollOne());
+    if (rerollsAfterThis > 0) {
+      const target = bestCategoryScore(simDice, usedKeys).key;
+      const hold2 = bestHoldForCategory(simDice, target);
+      simDice = simDice.map((v,i) => hold2[i] ? v : rollOne());
+    }
+    total += bestCategoryScore(simDice, usedKeys).score;
+  }
+  return total / trials;
+}
+
+function decideHoldOptimal(dice, usedKeys, rerollsAfterThis) {
+  const trials = rerollsAfterThis === 0 ? 60 : 35;
+  let bestSubset = ALL_HOLD_SUBSETS[31];
+  let bestValue = -Infinity;
+  for (const subset of ALL_HOLD_SUBSETS) {
+    const value = evaluateHold(dice, subset, usedKeys, rerollsAfterThis, trials);
+    if (value > bestValue) { bestValue = value; bestSubset = subset; }
+  }
+  return bestSubset;
+}
+
+// Easy mode: no lookahead — just chase today's best-looking category,
+// and sometimes hold the "wrong" dice like a distracted human would.
+function decideHoldEasy(dice, usedKeys) {
+  const target = bestCategoryScore(dice, usedKeys).key;
+  let hold = bestHoldForCategory(dice, target);
+  if (Math.random() < 0.35) {
+    hold = hold.map(() => Math.random() < 0.5); // a noisy, imperfect hold
+  }
+  return hold;
+}
+
+function botChooseCategory(dice, usedKeys) {
+  if (state.botMode === 'easy' && Math.random() < 0.2) {
+    const remaining = CATEGORIES.filter(c => !usedKeys.has(c.key));
+    const pick = remaining[Math.floor(Math.random() * remaining.length)];
+    return { key: pick.key, score: pick.score(dice) };
+  }
+  return bestCategoryScore(dice, usedKeys);
+}
+
+async function botTakeTurn() {
+  setMessage("Bot is thinking...");
+  await delay(500);
+
+  const usedBot = new Set(Object.keys(state.scores.bot));
+  const decideHold = (dice, rerollsAfterThis) =>
+    state.botMode === 'easy' ? decideHoldEasy(dice, usedBot) : decideHoldOptimal(dice, usedBot, rerollsAfterThis);
+
+  await performRoll([false,false,false,false,false]);
+  state.rollsLeft = 2;
+  updateControls();
+  await delay(350);
+
+  await performRoll(decideHold(state.dice, 1));
+  state.rollsLeft = 1;
+  updateControls();
+  await delay(350);
+
+  await performRoll(decideHold(state.dice, 0));
+  state.rollsLeft = 0;
+  updateControls();
+  await delay(350);
+
+  const choice = botChooseCategory(state.dice, usedBot);
+  state.scores.bot[choice.key] = choice.score;
+  state.lastFilled = { player: 'bot', key: choice.key };
+  const label = CATEGORIES.find(c => c.key === choice.key).label;
+  setMessage(`Bot scored ${choice.score} in ${label}.`);
+  renderScorecard();
+  await delay(1000);
+  endTurn();
+}
+
+/* ================================================================
+   SCORECARD RENDERING
+   ================================================================ */
+function bonusCellHTML(player) {
+  const upperCats = CATEGORIES.filter(c => c.section === 'upper');
+  const upperSum = upperCats.reduce((t,c) => t + (state.scores[player][c.key] ?? 0), 0);
+  if (upperSum >= UPPER_BONUS_THRESHOLD) return `<span class="bonus-achieved">+50</span>`;
+  const pct = Math.min(100, Math.round((upperSum / UPPER_BONUS_THRESHOLD) * 100));
+  return `
+    <div class="bonus-track"><div class="bonus-fill" style="width:${pct}%"></div></div>
+    <span class="bonus-label">${upperSum}/${UPPER_BONUS_THRESHOLD}</span>`;
+}
+
+function cellHTML(cat, player) {
+  const filled = state.scores[player][cat.key] !== undefined;
+  if (filled) {
+    const justFilled = state.lastFilled && state.lastFilled.player === player && state.lastFilled.key === cat.key;
+    return `<span class="locked-score ${justFilled ? 'pop' : ''}">${state.scores[player][cat.key]}</span>`;
+  }
+  if (player === 'you' && state.currentPlayer === 'you' && state.hasRolledThisTurn) {
+    return `<button class="score-choice" data-key="${cat.key}">${cat.score(state.dice)}</button>`;
+  }
+  return `<span class="empty-cell">\u2013</span>`;
+}
+
+function renderScorecard() {
+  const upperCats = CATEGORIES.filter(c => c.section === 'upper');
+  const lowerCats = CATEGORIES.filter(c => c.section === 'lower');
+
+  const rowHTML = cat => `
+    <tr>
+      <td class="cat-name">${cat.label}<span class="desc">${cat.desc}</span></td>
+      <td class="cat-score you-col">${cellHTML(cat, 'you')}</td>
+      <td class="cat-score bot-col">${cellHTML(cat, 'bot')}</td>
+    </tr>`;
+
+  document.getElementById('upperBody').innerHTML = `
+    ${upperCats.map(rowHTML).join('')}
+    <tr>
+      <td class="cat-name">Bonus<span class="desc">+50 at 63 upper points</span></td>
+      <td class="cat-score you-col">${bonusCellHTML('you')}</td>
+      <td class="cat-score bot-col">${bonusCellHTML('bot')}</td>
+    </tr>`;
+
+  document.getElementById('lowerBody').innerHTML = lowerCats.map(rowHTML).join('');
+
+  document.querySelectorAll('.score-choice').forEach(btn => {
+    btn.addEventListener('click', () => chooseCategory(btn.dataset.key));
+  });
+
+  updateTotals();
+}
+
+function upperSumFor(player) {
+  return CATEGORIES.filter(c => c.section === 'upper')
+    .reduce((t,c) => t + (state.scores[player][c.key] ?? 0), 0);
+}
+
+function totalFor(player) {
+  const bonus = upperSumFor(player) >= UPPER_BONUS_THRESHOLD ? UPPER_BONUS_POINTS : 0;
+  return Object.values(state.scores[player]).reduce((a,b) => a+b, 0) + bonus;
+}
+
+function updateTotals() {
+  document.getElementById('youTotal').textContent = totalFor('you');
+  document.getElementById('botTotal').textContent = totalFor('bot');
+}
+
+/* ================================================================
+   TURN FLOW
+   ================================================================ */
+function chooseCategory(key) {
+  if (state.currentPlayer !== 'you') return;
+  const cat = CATEGORIES.find(c => c.key === key);
+  state.scores.you[key] = cat.score(state.dice);
+  state.lastFilled = { player: 'you', key };
+  renderScorecard();
+  endTurn();
+}
+
+function endTurn() {
+  const youDone = Object.keys(state.scores.you).length === CATEGORIES.length;
+  const botDone = Object.keys(state.scores.bot).length === CATEGORIES.length;
+  if (youDone && botDone) { endGame(); return; }
+  state.currentPlayer = state.currentPlayer === 'you' ? 'bot' : 'you';
+  startTurn();
+}
+
+function startTurn() {
+  state.dice = [1,1,1,1,1];
+  state.held = [false,false,false,false,false];
+  state.rollsLeft = 3;
+  state.hasRolledThisTurn = false;
+
+  renderIdleDice();
+  renderScorecard();
+  updateControls();
+
+  setTimeout(() => { state.lastFilled = null; }, 900);
+
+  const badge = document.getElementById('turnBadge');
+  if (state.currentPlayer === 'you') {
+    badge.textContent = `${possessive()} turn`;
+    badge.classList.remove('bot-turn');
+    setMessage(`Roll the dice to start ${possessiveLower()} turn.`);
+  } else {
+    badge.textContent = "Bot's turn";
+    badge.classList.add('bot-turn');
+    setTimeout(botTakeTurn, 400);
+  }
+}
+
+/* ================================================================
+   PERSONAL BEST (stored locally in this browser)
+   ================================================================ */
+function loadBest() { return Number(storage.get('yatzyBest', 0)); }
+function updateBestDisplay() {
+  document.getElementById('bestScoreDisplay').textContent = `${possessive()} best: ${loadBest()}`;
+}
+
+function spawnConfetti() {
+  const colors = ['#F2B705', '#E8871E', '#2D6A4F', '#F5EFE0'];
+  const layer = document.getElementById('confettiLayer');
+  layer.innerHTML = '';
+  for (let i = 0; i < 36; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = (Math.random() * 0.5) + 's';
+    piece.style.animationDuration = (1.4 + Math.random() * 1.2) + 's';
+    layer.appendChild(piece);
+  }
+}
+
+function endGame() {
+  document.getElementById('rollBtn').disabled = true;
+  const youTotal = totalFor('you');
+  const botTotal = totalFor('bot');
+
+  const best = loadBest();
+  let isNewBest = false;
+  if (youTotal > best) { storage.set('yatzyBest', youTotal); isNewBest = true; }
+  updateBestDisplay();
+
+  const title = document.getElementById('overlayTitle');
+  const subtitle = document.getElementById('overlaySubtitle');
+  const bestLine = document.getElementById('overlayBestLine');
+
+  if (youTotal > botTotal) title.textContent = `${displayName()} win${displayName() === 'You' ? '' : 's'}! \ud83c\udf89`;
+  else if (botTotal > youTotal) title.textContent = 'Well played \u2014 Bot wins';
+  else title.textContent = "It's a tie!";
+
+  subtitle.textContent = `${youTotal} - ${botTotal}`;
+  bestLine.hidden = !isNewBest;
+
+  document.getElementById('winOverlay').hidden = false;
+  spawnConfetti();
+}
+
+/* ================================================================
+   UI HELPERS
+   ================================================================ */
+function updateControls() {
+  const rollBtn = document.getElementById('rollBtn');
+  rollBtn.disabled = state.currentPlayer !== 'you' || state.rollsLeft <= 0;
+  document.getElementById('rollsLeft').textContent =
+    state.currentPlayer !== 'you' ? '\u2014' :
+    (state.rollsLeft > 0 ? `${state.rollsLeft} roll${state.rollsLeft === 1 ? '' : 's'} left` : 'No rolls left \u2014 pick a category');
+}
+
+function setMessage(text) {
+  document.getElementById('message').textContent = text;
+}
+
+async function onPlayerRoll() {
+  if (state.currentPlayer !== 'you' || state.rollsLeft <= 0) return;
+  document.getElementById('rollBtn').disabled = true;
+  state.rollsLeft--;
+  await performRoll(state.held);
+  renderScorecard();
+  updateControls();
+}
+
+function newGame() {
+  document.getElementById('winOverlay').hidden = true;
+  state.scores = { you: {}, bot: {} };
+  state.currentPlayer = Math.random() < 0.5 ? 'you' : 'bot';
+  state.gameStarted = false;
+  setModeLocked(false);
+  document.getElementById('rollBtn').disabled = false;
+  startTurn();
+}
+
+/* ================================================================
+   EVENT WIRING + INITIAL START
+   ================================================================ */
+document.getElementById('rollBtn').addEventListener('click', onPlayerRoll);
+document.getElementById('newGameBtn').addEventListener('click', newGame);
+document.getElementById('playAgainBtn').addEventListener('click', newGame);
+
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (state.gameStarted) return; // belt-and-suspenders alongside the disabled attribute
+    state.botMode = btn.dataset.mode;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b === btn));
+  });
+});
+
+document.getElementById('playerNameInput').addEventListener('input', (e) => {
+  state.playerName = e.target.value;
+  refreshNameDisplays();
+});
+
+refreshNameDisplays();
+state.currentPlayer = Math.random() < 0.5 ? 'you' : 'bot';
+startTurn();
+</script>
+
+</body>
+</html>
