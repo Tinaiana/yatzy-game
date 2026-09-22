@@ -145,7 +145,14 @@
     color: var(--yellow);
     font-size: 0.85rem;
     font-weight: 600;
-    margin-bottom: 20px;
+    margin-bottom: 2px;
+  }
+
+  .record-line {
+    text-align: center;
+    color: #C9D8CE;
+    font-size: 0.78rem;
+    margin: 0 0 18px;
   }
 
   .name-field { text-align: center; margin-bottom: 10px; }
@@ -167,7 +174,7 @@
   .turn-badge {
     display: block;
     width: fit-content;
-    margin: 0 auto 28px;
+    margin: 0 auto 20px;
     padding: 6px 18px;
     border-radius: 20px;
     font-family: 'Zilla Slab', serif;
@@ -178,14 +185,29 @@
     transition: background 0.2s ease;
   }
   .turn-badge.bot-turn { background: var(--orange); color: var(--white); }
+  .turn-badge.setup { background: rgba(255,255,255,0.14); color: var(--parchment); }
+
+  /* ---------- INFO NAV (Rules / About / Builder) ---------- */
+  .info-nav {
+    display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+    max-width: 560px; margin: 0 auto 26px;
+  }
+  .info-nav button {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: var(--parchment);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem; font-weight: 600;
+    padding: 8px 14px; border-radius: 20px;
+    cursor: pointer;
+  }
+  .info-nav button:hover { background: rgba(255,255,255,0.11); }
 
   .board {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 28px;
-  }
-  @media (min-width: 780px) {
-    .board { grid-template-columns: 260px 1fr; align-items: start; }
   }
 
   /* ---------- DICE TRAY ---------- */
@@ -195,6 +217,8 @@
     border-radius: 12px;
     padding: 24px 20px;
     text-align: center;
+    width: 100%;
+    max-width: 440px;
   }
 
   /* Bot difficulty toggle */
@@ -270,7 +294,7 @@
   .roll-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: none; animation: none; }
   .roll-btn:disabled { background: #8A8A8A; box-shadow: 0 3px 0 #666; cursor: not-allowed; color: #DDD; animation: none; }
 
-  .rolls-left { margin-top: 10px; color: var(--parchment); font-size: 0.9rem; }
+  .rolls-left { margin-top: 10px; color: var(--parchment); font-size: 0.9rem; min-height: 1.2em; }
 
   .new-game {
     margin-top: 14px;
@@ -288,6 +312,7 @@
     border-radius: 14px;
     overflow: hidden;
     box-shadow: 0 10px 28px rgba(0,0,0,0.28);
+    width: 100%;
   }
 
   .sections-grid { display: grid; grid-template-columns: 1fr; }
@@ -383,6 +408,23 @@
   .totals-table tfoot td.you-col, .totals-table tfoot td.bot-col { text-align: center; width: 64px; }
 
   .message { text-align: center; color: var(--parchment); margin-top: 18px; min-height: 22px; font-size: 0.95rem; }
+
+  /* ---------- FEEDBACK (likes route to a GitHub issue) ---------- */
+  .feedback-box { text-align: center; margin-top: 26px; }
+  .feedback-prompt { color: var(--parchment); font-size: 0.85rem; margin: 0 0 8px; font-weight: 600; }
+  .feedback-buttons { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
+  .feedback-buttons button {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.22);
+    color: var(--parchment);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem; font-weight: 600;
+    padding: 7px 14px; border-radius: 20px;
+    cursor: pointer;
+  }
+  .feedback-buttons button:hover { background: rgba(255,255,255,0.14); }
+  .feedback-note { color: #C9D8CE; font-size: 0.7rem; margin: 0; opacity: 0.85; }
+  .feedback-note a { color: var(--yellow); }
      /* ---------- INFO / RULES SECTION ---------- */
   .info-section {
     background: var(--parchment);
@@ -423,6 +465,34 @@
   .info-section strong {
     color: var(--ink);
   }
+
+  /* Each rules/about/builder block is a native <details>, so the text is
+     in the page (crawlable) from the start but stays collapsed until
+     someone clicks it — matches the nav buttons above the board. */
+  .info-section details {
+    border-bottom: 1px solid var(--parchment-line);
+    padding-bottom: 16px;
+    margin-bottom: 18px;
+  }
+  .info-section details:last-of-type { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+  .info-section summary {
+    cursor: pointer;
+    font-family: 'Zilla Slab', serif;
+    font-size: 1.25rem;
+    color: var(--ink);
+    padding: 4px 28px 4px 0;
+    position: relative;
+    list-style: none;
+  }
+  .info-section summary::-webkit-details-marker { display: none; }
+  .info-section summary::after {
+    content: '+';
+    position: absolute; right: 4px; top: 0;
+    font-size: 1.4rem; color: var(--orange-dark); font-weight: 700;
+  }
+  .info-section details[open] summary::after { content: '\2212'; }
+  .info-section details > *:not(summary):first-of-type { margin-top: 14px; }
+
   /* ---------- WIN OVERLAY ---------- */
   .overlay {
     position: fixed; inset: 0;
@@ -449,17 +519,31 @@
   .overlay-card p { margin: 0 0 6px; color: var(--ink-soft); position: relative; z-index: 2; }
   .overlay-card .best-line { color: var(--orange-dark); font-weight: 700; margin-bottom: 20px; }
 
-  #playAgainBtn {
+  .overlay-actions {
     position: relative; z-index: 2;
+    display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+  }
+
+  #playAgainBtn, #changeModeBtn {
     font-family: 'Zilla Slab', serif;
-    font-weight: 700; font-size: 1.05rem;
-    background: var(--yellow);
-    border: none; border-radius: 8px;
-    padding: 12px 28px;
+    font-weight: 700; font-size: 1.0rem;
+    border-radius: 8px;
+    padding: 12px 22px;
     cursor: pointer;
+  }
+  #playAgainBtn {
+    background: var(--yellow);
+    border: none;
     box-shadow: 0 3px 0 var(--orange-dark);
   }
   #playAgainBtn:active { transform: translateY(2px); box-shadow: none; }
+
+  #changeModeBtn {
+    background: none;
+    border: 1.5px solid var(--orange-dark);
+    color: var(--orange-dark);
+  }
+  #changeModeBtn:hover { background: rgba(0,0,0,0.05); }
 
   .confetti-piece {
     position: absolute; top: -12px;
@@ -477,28 +561,19 @@
   <h1 id="gameTitle">Yatzy vs Bot</h1>
   <p class="subtitle">13 categories · 3 rolls per turn · fixed lower-section points</p>
   <div class="name-field">
-    <input type="text" id="playerNameInput" maxlength="16" placeholder="Your name (optional)" autocomplete="off">
+    <input type="text" id="playerNameInput" maxlength="16" placeholder="Your name (optional)" autocomplete="off" value="Tina">
   </div>
   <p class="best-score" id="bestScoreDisplay">Your best: 0</p>
+  <p class="record-line" id="recordDisplay">Record: 0W – 0L – 0T</p>
   <span class="turn-badge" id="turnBadge">Your turn</span>
 
+  <div class="info-nav">
+    <button type="button" id="rulesNavBtn">📖 Rules</button>
+    <button type="button" id="aboutNavBtn">🎲 What is this?</button>
+    <button type="button" id="builderNavBtn">👋 About the builder</button>
+  </div>
+
   <div class="board">
-
-    <!-- ================= DICE TRAY ================= -->
-    <div class="tray">
-      <span class="bot-mode-label">Bot difficulty</span>
-      <div class="mode-buttons">
-        <button class="mode-btn active" data-mode="optimal">Optimal</button>
-        <button class="mode-btn" data-mode="easy">Easy</button>
-      </div>
-      <p class="mode-lock-hint" id="modeLockHint" hidden>Locked for this game</p>
-
-      <div class="dice-row" id="diceRow"></div>
-      <p class="hint">Click a die to hold it before rerolling</p>
-      <button class="roll-btn" id="rollBtn">Roll dice</button>
-      <p class="rolls-left" id="rollsLeft">3 rolls left</p>
-      <button class="new-game" id="newGameBtn">Start new game</button>
-    </div>
 
     <!-- ================= SCORECARD: two columns side by side ================= -->
     <div class="scorecard">
@@ -521,55 +596,93 @@
       </table>
     </div>
 
+    <!-- ================= DICE TRAY ================= -->
+    <div class="tray">
+      <span class="bot-mode-label">Bot difficulty</span>
+      <div class="mode-buttons">
+        <button class="mode-btn active" data-mode="optimal">Optimal</button>
+        <button class="mode-btn" data-mode="easy">Easy</button>
+      </div>
+      <p class="mode-lock-hint" id="modeLockHint" hidden>Locked for this game</p>
+
+      <div class="dice-row" id="diceRow"></div>
+      <p class="hint" id="diceHint">Choose a difficulty, then start the game.</p>
+      <button class="roll-btn" id="startGameBtn">Start Game</button>
+      <button class="roll-btn" id="rollBtn" hidden>Roll dice</button>
+      <p class="rolls-left" id="rollsLeft"></p>
+      <button class="new-game" id="newGameBtn">Start new game</button>
+    </div>
+
   </div>
 
   <p class="message" id="message"></p>
-</div>
+
+  <div class="feedback-box">
+    <p class="feedback-prompt">Enjoying the game?</p>
+    <div class="feedback-buttons">
+      <button type="button" id="likeBtn">\ud83d\udc4d Liked it</button>
+      <button type="button" id="dislikeBtn">\ud83d\udc4e Not for me</button>
+    </div>
+    <p class="feedback-note">Opens a quick note to <a href="https://github.com/Tinaiana" target="_blank" rel="noopener">@Tinaiana</a> on GitHub \u2014 add a comment if you'd like.</p>
   </div>
+</div>
 
 <!-- ================= RULES + GUIDE SECTION ================= -->
 <section class="info-section">
-  <h2>How to Play Yatzy</h2>
-  <p>Yatzy is a classic dice game played with five dice and 13 scoring categories. Each turn, you may roll the dice up to <strong>three times</strong>. Between rolls, you can hold any dice you want to keep and reroll the rest. Once you are happy with your roll — or you run out of rolls — you must choose one of the 13 categories to score in. The goal is to finish all 13 categories with the highest total score.</p>
+  <h2>Yatzy vs Bot &mdash; Rules, Info &amp; More</h2>
 
-  <h3>Upper Section</h3>
-  <p>The upper section has six categories: <strong>Ones, Twos, Threes, Fours, Fives, and Sixes</strong>. In each category, you score the sum of the dice showing that number. For example, if you roll three 4s and score in Fours, you get 12 points. If you collect at least <strong>63 points</strong> across the upper section, you earn a <strong>50-point bonus</strong>.</p>
+  <details id="rulesDetails">
+    <summary>How to Play &amp; Rules</summary>
+    <p>Yatzy is a classic dice game played with five dice and 13 scoring categories. Each turn, you may roll the dice up to <strong>three times</strong>. Between rolls, you can hold any dice you want to keep and reroll the rest. Once you are happy with your roll — or you run out of rolls — you must choose one of the 13 categories to score in. The goal is to finish all 13 categories with the highest total score.</p>
 
-  <h3>Lower Section</h3>
-  <p>The lower section has seven categories with fixed or special scoring:</p>
-  <ul>
-    <li><strong>Three of a Kind</strong> — three or more matching dice → sum of all five dice</li>
-    <li><strong>Four of a Kind</strong> — four or more matching dice → sum of all five dice</li>
-    <li><strong>Full House</strong> — three of one number plus a pair → 25 points</li>
-    <li><strong>Small Straight</strong> — four consecutive numbers (1234, 2345, or 3456) → 30 points</li>
-    <li><strong>Large Straight</strong> — five consecutive numbers (12345 or 23456) → 40 points</li>
-    <li><strong>Chance</strong> — sum of all five dice, no requirements</li>
-    <li><strong>Yatzy</strong> — all five dice show the same number → 50 points</li>
-  </ul>
+    <h3>Upper Section</h3>
+    <p>The upper section has six categories: <strong>Ones, Twos, Threes, Fours, Fives, and Sixes</strong>. In each category, you score the sum of the dice showing that number. For example, if you roll three 4s and score in Fours, you get 12 points. If you collect at least <strong>63 points</strong> across the upper section, you earn a <strong>50-point bonus</strong>.</p>
 
-  <h3>Winning the Game</h3>
-  <p>After all 13 categories are filled by both you and the bot, the player with the <strong>highest total score</strong> wins. If both players have the same score, the game ends in a tie.</p>
+    <h3>Lower Section</h3>
+    <p>The lower section has seven categories with fixed or special scoring:</p>
+    <ul>
+      <li><strong>Three of a Kind</strong> — three or more matching dice → sum of all five dice</li>
+      <li><strong>Four of a Kind</strong> — four or more matching dice → sum of all five dice</li>
+      <li><strong>Full House</strong> — three of one number plus a pair → 25 points</li>
+      <li><strong>Small Straight</strong> — four consecutive numbers (1234, 2345, or 3456) → 30 points</li>
+      <li><strong>Large Straight</strong> — five consecutive numbers (12345 or 23456) → 40 points</li>
+      <li><strong>Chance</strong> — sum of all five dice, no requirements</li>
+      <li><strong>Yatzy</strong> — all five dice show the same number → 50 points</li>
+    </ul>
 
-  <h3>Bot Difficulty</h3>
-  <p>You can choose between two bot difficulty levels before the game starts:</p>
-  <ul>
-    <li><strong>Optimal</strong> — the bot uses statistical simulation to make the best possible decisions.</li>
-    <li><strong>Easy</strong> — the bot plays more casually and occasionally makes human-like mistakes.</li>
-  </ul>
+    <h3>Winning the Game</h3>
+    <p>After all 13 categories are filled by both you and the bot, the player with the <strong>highest total score</strong> wins. If both players have the same score, the game ends in a tie.</p>
 
-  <h3>Tips for Better Scores</h3>
-  <ul>
-    <li>Focus on the upper section early to secure the 63-point bonus.</li>
-    <li>Do not waste your Yatzy category on a low roll — save it for when you actually roll five of a kind.</li>
-    <li>Use Chance to absorb bad rolls that do not fit anywhere else.</li>
-    <li>In the lower section, prioritize Straights and Full House before Three of a Kind.</li>
-  </ul>
+    <h3>Bot Difficulty</h3>
+    <p>You choose between two bot difficulty levels on the setup screen, before the game begins. The choice locks in once the first die is rolled:</p>
+    <ul>
+      <li><strong>Optimal</strong> — the bot uses statistical simulation to make the best possible decisions.</li>
+      <li><strong>Easy</strong> — the bot plays more casually and occasionally makes human-like mistakes.</li>
+    </ul>
 
-  <h3>Frequently Asked Questions</h3>
-  <p><strong>Is this Yatzy game free?</strong><br>Yes, completely free. No download, no signup, no payment.</p>
-  <p><strong>Can I play on mobile?</strong><br>Yes, the game works on phones, tablets, and desktop browsers.</p>
-  <p><strong>Does the game save my progress?</strong><br>Your best score is saved locally in your browser. The game itself resets when you start a new round.</p>
-  <p><strong>What is the difference between Yatzy and Yahtzee?</strong><br>They are essentially the same game. Yahtzee is the trademarked Hasbro version, while Yatzy is the public-domain name used in many countries.</p>
+    <h3>Tips for Better Scores</h3>
+    <ul>
+      <li>Focus on the upper section early to secure the 63-point bonus.</li>
+      <li>Do not waste your Yatzy category on a low roll — save it for when you actually roll five of a kind.</li>
+      <li>Use Chance to absorb bad rolls that do not fit anywhere else.</li>
+      <li>In the lower section, prioritize Straights and Full House before Three of a Kind.</li>
+    </ul>
+  </details>
+
+  <details id="aboutGameDetails">
+    <summary>What Is This Game?</summary>
+    <p><strong>Yatzy vs Bot</strong> is a free, browser-based version of the classic Yatzy dice game, played solo against a computer opponent. There's nothing to install and nothing to sign up for &mdash; just open the page and play.</p>
+    <p><strong>Is this Yatzy game free?</strong><br>Yes, completely free. No download, no signup, no payment.</p>
+    <p><strong>Can I play on mobile?</strong><br>Yes, the game works on phones, tablets, and desktop browsers.</p>
+    <p><strong>Does the game save my progress?</strong><br>Your best score and your win/loss record are saved locally in your browser. The board itself resets each time you start a new round.</p>
+    <p><strong>What is the difference between Yatzy and Yahtzee?</strong><br>They are essentially the same game. Yahtzee is the trademarked Hasbro version, while Yatzy is the public-domain name used in many countries.</p>
+  </details>
+
+  <details id="builderDetails">
+    <summary>About the Builder</summary>
+    <p>👋 Hi, I'm the person who built this! I put it together because I like Yatzy and wanted a fast, no-fuss way to play a round against a bot without installing anything. If you spot a bug or have an idea for a feature, I'd genuinely love to hear it.</p>
+    <p><em>(Placeholder text — swap in your own name and story here.)</em></p>
+  </details>
 </section>
 
 <!-- ================= WIN / GAME-OVER OVERLAY ================= -->
@@ -579,7 +692,10 @@
     <h2 id="overlayTitle">Well played!</h2>
     <p id="overlaySubtitle">210 - 178</p>
     <p class="best-line" id="overlayBestLine" hidden>New personal best!</p>
-    <button id="playAgainBtn">Play again</button>
+    <div class="overlay-actions">
+      <button id="playAgainBtn">Play again</button>
+      <button id="changeModeBtn">Change difficulty</button>
+    </div>
   </div>
 </div>
 
@@ -592,12 +708,12 @@ const state = {
   held: [false, false, false, false, false],
   rollsLeft: 3,
   hasRolledThisTurn: false,
-  currentPlayer: 'you',
+  currentPlayer: null,
   scores: { you: {}, bot: {} },
   lastFilled: null,
   botMode: 'optimal',   // 'optimal' or 'easy' — set by the difficulty toggle
-  playerName: '',       // optional, set via the name field
-  gameStarted: false,   // true from the first roll of the game onward — locks bot difficulty
+  playerName: 'Tina',    // defaults to Tina — clear the name field to play as anonymous "You"
+  gameStarted: false,    // true once "Start Game" has been pressed — locks bot difficulty
 };
 
 const rollOne = () => Math.floor(Math.random() * 6) + 1;
@@ -753,14 +869,6 @@ function renderIdleDice() {
   `).join('');
 }
 
-function renderDice() {
-  if (!state.hasRolledThisTurn) {
-    renderIdleDice();
-  } else {
-    renderDiceFaces(state.dice, state.held, state.currentPlayer === 'you');
-  }
-}
-
 /* ================================================================
    ROLLING WITH ANIMATION
    ================================================================ */
@@ -770,10 +878,6 @@ function setModeLocked(locked) {
 }
 
 function performRoll(holdMask) {
-  if (!state.gameStarted) {
-    state.gameStarted = true;
-    setModeLocked(true);
-  }
   return new Promise(resolve => {
     const baseDice = state.hasRolledThisTurn ? state.dice : [1,1,1,1,1];
     const finalDice = baseDice.map((v,i) => holdMask[i] ? v : rollOne());
@@ -1025,6 +1129,7 @@ function startTurn() {
   setTimeout(() => { state.lastFilled = null; }, 900);
 
   const badge = document.getElementById('turnBadge');
+  badge.classList.remove('setup');
   if (state.currentPlayer === 'you') {
     badge.textContent = `${possessive()} turn`;
     badge.classList.remove('bot-turn');
@@ -1037,11 +1142,67 @@ function startTurn() {
 }
 
 /* ================================================================
-   PERSONAL BEST (stored locally in this browser)
+   PRE-GAME SETUP GATE
+   The difficulty picker must be answered before any turn happens —
+   including when the bot would otherwise go first — so there's never
+   a window where the bot starts rolling before you've chosen a mode.
+   ================================================================ */
+function showSetupScreen() {
+  state.gameStarted = false;
+  state.currentPlayer = null;
+  state.dice = [1,1,1,1,1];
+  state.held = [false,false,false,false,false];
+  state.rollsLeft = 3;
+  state.hasRolledThisTurn = false;
+  state.lastFilled = null;
+
+  setModeLocked(false);
+  renderIdleDice();
+  renderScorecard();
+
+  document.getElementById('startGameBtn').hidden = false;
+  document.getElementById('rollBtn').hidden = true;
+  document.getElementById('rollsLeft').textContent = '';
+  document.getElementById('diceHint').textContent = 'Choose a difficulty, then start the game.';
+
+  const badge = document.getElementById('turnBadge');
+  badge.textContent = 'Choose difficulty';
+  badge.classList.remove('bot-turn');
+  badge.classList.add('setup');
+
+  setMessage('Pick Easy or Optimal, then press Start Game.');
+}
+
+function beginGame() {
+  state.gameStarted = true;
+  setModeLocked(true);
+
+  document.getElementById('startGameBtn').hidden = true;
+  document.getElementById('rollBtn').hidden = false;
+  document.getElementById('diceHint').textContent = 'Click a die to hold it before rerolling';
+
+  state.currentPlayer = Math.random() < 0.5 ? 'you' : 'bot';
+  startTurn();
+}
+
+/* ================================================================
+   PERSONAL BEST + WIN/LOSS RECORD (stored locally in this browser)
    ================================================================ */
 function loadBest() { return Number(storage.get('yatzyBest', 0)); }
 function updateBestDisplay() {
   document.getElementById('bestScoreDisplay').textContent = `${possessive()} best: ${loadBest()}`;
+}
+
+function loadRecord() {
+  return {
+    wins: Number(storage.get('yatzyWins', 0)),
+    losses: Number(storage.get('yatzyLosses', 0)),
+    ties: Number(storage.get('yatzyTies', 0)),
+  };
+}
+function updateRecordDisplay() {
+  const r = loadRecord();
+  document.getElementById('recordDisplay').textContent = `Record: ${r.wins}W \u2013 ${r.losses}L \u2013 ${r.ties}T`;
 }
 
 function spawnConfetti() {
@@ -1068,6 +1229,12 @@ function endGame() {
   let isNewBest = false;
   if (youTotal > best) { storage.set('yatzyBest', youTotal); isNewBest = true; }
   updateBestDisplay();
+
+  const rec = loadRecord();
+  if (youTotal > botTotal) storage.set('yatzyWins', rec.wins + 1);
+  else if (botTotal > youTotal) storage.set('yatzyLosses', rec.losses + 1);
+  else storage.set('yatzyTies', rec.ties + 1);
+  updateRecordDisplay();
 
   const title = document.getElementById('overlayTitle');
   const subtitle = document.getElementById('overlaySubtitle');
@@ -1108,13 +1275,29 @@ async function onPlayerRoll() {
   updateControls();
 }
 
-function newGame() {
+// Abandon the current game (or start fresh from the very first load) and
+// return to the setup screen so difficulty can be (re)chosen.
+function resetToSetup() {
   document.getElementById('winOverlay').hidden = true;
   state.scores = { you: {}, bot: {} };
-  state.currentPlayer = Math.random() < 0.5 ? 'you' : 'bot';
-  state.gameStarted = false;
-  setModeLocked(false);
   document.getElementById('rollBtn').disabled = false;
+  showSetupScreen();
+}
+
+// "Play again" from the win screen: keep the same difficulty and jump
+// straight back into a new game, no setup screen needed.
+function quickRematch() {
+  document.getElementById('winOverlay').hidden = true;
+  state.scores = { you: {}, bot: {} };
+  document.getElementById('rollBtn').disabled = false;
+
+  state.gameStarted = true;
+  setModeLocked(true);
+  document.getElementById('startGameBtn').hidden = true;
+  document.getElementById('rollBtn').hidden = false;
+  document.getElementById('diceHint').textContent = 'Click a die to hold it before rerolling';
+
+  state.currentPlayer = Math.random() < 0.5 ? 'you' : 'bot';
   startTurn();
 }
 
@@ -1122,8 +1305,10 @@ function newGame() {
    EVENT WIRING + INITIAL START
    ================================================================ */
 document.getElementById('rollBtn').addEventListener('click', onPlayerRoll);
-document.getElementById('newGameBtn').addEventListener('click', newGame);
-document.getElementById('playAgainBtn').addEventListener('click', newGame);
+document.getElementById('startGameBtn').addEventListener('click', beginGame);
+document.getElementById('newGameBtn').addEventListener('click', resetToSetup);
+document.getElementById('playAgainBtn').addEventListener('click', quickRematch);
+document.getElementById('changeModeBtn').addEventListener('click', resetToSetup);
 
 document.querySelectorAll('.mode-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -1138,9 +1323,34 @@ document.getElementById('playerNameInput').addEventListener('input', (e) => {
   refreshNameDisplays();
 });
 
+function toggleInfoSection(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.open = !el.open;
+  if (el.open && typeof el.scrollIntoView === 'function') {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+document.getElementById('rulesNavBtn').addEventListener('click', () => toggleInfoSection('rulesDetails'));
+document.getElementById('aboutNavBtn').addEventListener('click', () => toggleInfoSection('aboutGameDetails'));
+document.getElementById('builderNavBtn').addEventListener('click', () => toggleInfoSection('builderDetails'));
+
+function sendFeedback(liked) {
+  const GITHUB_USER = 'Tinaiana';
+  const GITHUB_REPO = 'yatzy-game'; // from the canonical URL in <head> — update here if the repo name differs
+  const title = encodeURIComponent(liked ? 'Feedback: Liked the game \ud83d\udc4d' : "Feedback: Didn't love it \ud83d\udc4e");
+  const body = encodeURIComponent(
+    `Quick feedback on Yatzy vs Bot.\n\nVerdict: ${liked ? 'Liked it' : "Didn't love it"}\n\n(Feel free to add details below \u2014 what worked, what didn't, anything you'd change.)\n`
+  );
+  const url = `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/issues/new?title=${title}&body=${body}`;
+  window.open(url, '_blank', 'noopener');
+}
+document.getElementById('likeBtn').addEventListener('click', () => sendFeedback(true));
+document.getElementById('dislikeBtn').addEventListener('click', () => sendFeedback(false));
+
 refreshNameDisplays();
-state.currentPlayer = Math.random() < 0.5 ? 'you' : 'bot';
-startTurn();
+updateRecordDisplay();
+showSetupScreen();
 </script>
 
 </body>
