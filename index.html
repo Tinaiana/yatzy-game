@@ -383,7 +383,46 @@
   .totals-table tfoot td.you-col, .totals-table tfoot td.bot-col { text-align: center; width: 64px; }
 
   .message { text-align: center; color: var(--parchment); margin-top: 18px; min-height: 22px; font-size: 0.95rem; }
-
+     /* ---------- INFO / RULES SECTION ---------- */
+  .info-section {
+    background: var(--parchment);
+    border-radius: 14px;
+    padding: 32px 28px;
+    margin-top: 28px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.28);
+    line-height: 1.7;
+  }
+  .info-section h2 {
+    font-family: 'Zilla Slab', serif;
+    font-size: 1.6rem;
+    color: var(--ink);
+    margin: 0 0 16px;
+    border-bottom: 3px solid var(--yellow);
+    padding-bottom: 8px;
+  }
+  .info-section h3 {
+    font-family: 'Zilla Slab', serif;
+    font-size: 1.15rem;
+    color: var(--ink);
+    margin: 24px 0 8px;
+  }
+  .info-section p {
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+    margin: 0 0 12px;
+  }
+  .info-section ul {
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+    padding-left: 20px;
+    margin: 0 0 12px;
+  }
+  .info-section li {
+    margin-bottom: 6px;
+  }
+  .info-section strong {
+    color: var(--ink);
+  }
   /* ---------- WIN OVERLAY ---------- */
   .overlay {
     position: fixed; inset: 0;
@@ -486,6 +525,52 @@
 
   <p class="message" id="message"></p>
 </div>
+  </div>
+
+<!-- ================= RULES + GUIDE SECTION ================= -->
+<section class="info-section">
+  <h2>How to Play Yatzy</h2>
+  <p>Yatzy is a classic dice game played with five dice and 13 scoring categories. Each turn, you may roll the dice up to <strong>three times</strong>. Between rolls, you can hold any dice you want to keep and reroll the rest. Once you are happy with your roll — or you run out of rolls — you must choose one of the 13 categories to score in. The goal is to finish all 13 categories with the highest total score.</p>
+
+  <h3>Upper Section</h3>
+  <p>The upper section has six categories: <strong>Ones, Twos, Threes, Fours, Fives, and Sixes</strong>. In each category, you score the sum of the dice showing that number. For example, if you roll three 4s and score in Fours, you get 12 points. If you collect at least <strong>63 points</strong> across the upper section, you earn a <strong>50-point bonus</strong>.</p>
+
+  <h3>Lower Section</h3>
+  <p>The lower section has seven categories with fixed or special scoring:</p>
+  <ul>
+    <li><strong>Three of a Kind</strong> — three or more matching dice → sum of all five dice</li>
+    <li><strong>Four of a Kind</strong> — four or more matching dice → sum of all five dice</li>
+    <li><strong>Full House</strong> — three of one number plus a pair → 25 points</li>
+    <li><strong>Small Straight</strong> — four consecutive numbers (1234, 2345, or 3456) → 30 points</li>
+    <li><strong>Large Straight</strong> — five consecutive numbers (12345 or 23456) → 40 points</li>
+    <li><strong>Chance</strong> — sum of all five dice, no requirements</li>
+    <li><strong>Yatzy</strong> — all five dice show the same number → 50 points</li>
+  </ul>
+
+  <h3>Winning the Game</h3>
+  <p>After all 13 categories are filled by both you and the bot, the player with the <strong>highest total score</strong> wins. If both players have the same score, the game ends in a tie.</p>
+
+  <h3>Bot Difficulty</h3>
+  <p>You can choose between two bot difficulty levels before the game starts:</p>
+  <ul>
+    <li><strong>Optimal</strong> — the bot uses statistical simulation to make the best possible decisions.</li>
+    <li><strong>Easy</strong> — the bot plays more casually and occasionally makes human-like mistakes.</li>
+  </ul>
+
+  <h3>Tips for Better Scores</h3>
+  <ul>
+    <li>Focus on the upper section early to secure the 63-point bonus.</li>
+    <li>Do not waste your Yatzy category on a low roll — save it for when you actually roll five of a kind.</li>
+    <li>Use Chance to absorb bad rolls that do not fit anywhere else.</li>
+    <li>In the lower section, prioritize Straights and Full House before Three of a Kind.</li>
+  </ul>
+
+  <h3>Frequently Asked Questions</h3>
+  <p><strong>Is this Yatzy game free?</strong><br>Yes, completely free. No download, no signup, no payment.</p>
+  <p><strong>Can I play on mobile?</strong><br>Yes, the game works on phones, tablets, and desktop browsers.</p>
+  <p><strong>Does the game save my progress?</strong><br>Your best score is saved locally in your browser. The game itself resets when you start a new round.</p>
+  <p><strong>What is the difference between Yatzy and Yahtzee?</strong><br>They are essentially the same game. Yahtzee is the trademarked Hasbro version, while Yatzy is the public-domain name used in many countries.</p>
+</section>
 
 <!-- ================= WIN / GAME-OVER OVERLAY ================= -->
 <div class="overlay" id="winOverlay" hidden>
